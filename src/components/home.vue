@@ -2,7 +2,7 @@
   <el-container>
     <el-header>
       <div>
-        <img src="../assets/homelogo.jpg" alt />
+        <img src="../assets/homelogo.jpg" />
         <span>秒杀系统管理后台</span>
       </div>
 
@@ -23,7 +23,7 @@
         >
           <el-submenu :index="item.id+''" v-for="item in menulist" :key="item.id">
             <template slot="title">
-              <i :class="iconsObj[item.id]"></i>
+              <img :src="require(`../assets/${item.icon}`)" class="iconSize" />
               <span slot="title">{{item.description}}</span>
             </template>
             <el-menu-item
@@ -33,7 +33,7 @@
               @click="saveNavState(subItem.url)"
             >
               <template slot="title">
-                <i :class="subIconsObj[subItem.id]"></i>
+                <img :src="require(`../assets/${subItem.icon}`)" class="iconSize" />
                 <span>{{subItem.description}}</span>
               </template>
             </el-menu-item>
@@ -53,23 +53,6 @@ export default {
   data() {
     return {
       menulist: [],
-      iconsObj: {
-        "125": "el-icon-menu",
-        "103": "el-icon-s-shop",
-        "101": "el-icon-s-flag",
-        "102": "el-icon-s-opportunity",
-        "145": "el-icon-video-camera-solid"
-      },
-      subIconsObj: {
-        "110": "el-icon-goods",
-        "111": "el-icon-magic-stick",
-        "112": "el-icon-user",
-        "104": "el-icon-monitor",
-        "115": "el-icon-lock",
-        "121": "el-icon-camera",
-        "107": "el-icon-video-camera",
-        "146": "el-icon-mouse"
-      },
       isCollapse: false,
       //被激活的连接地址
       activePath: ""
@@ -85,11 +68,6 @@ export default {
       this.$router.push("/login");
     },
     async getMenuList() {
-      // const { data: res } = await this.$http.get("menus");
-      // if (res.code !== 200) return this.$message.error('获取左侧菜单数据失败！');
-      // this.menulist = res.data;
-      // console.log(res)
-
       this.menulist = JSON.parse(window.sessionStorage.getItem("data"));
     },
     toggleCollapse() {
@@ -146,5 +124,10 @@ export default {
   color: #fff;
   letter-spacing: 0.2em;
   cursor: pointer;
+}
+.iconSize {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
 }
 </style>
