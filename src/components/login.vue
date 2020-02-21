@@ -55,8 +55,6 @@ export default {
         //   return this.$message.error("用户名或密码错误");
         // }
         this.$message.success("登录成功");
-        console.log(res.data.perms);
-        console.log(JSON.stringify(res.data.perms));
         window.sessionStorage.setItem("data", JSON.stringify(res.data.perms));
 
         this.$router.push("/home");
