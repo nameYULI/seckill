@@ -8,6 +8,7 @@ import axios from 'axios'
 Vue.prototype.$http = axios
 
 axios.defaults.baseURL = 'http://47.101.172.208:6081/admin'
+axios.defaults.withCredentials=true // 允许携带cookie
 
 Vue.config.productionTip = false
 
