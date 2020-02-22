@@ -21,22 +21,26 @@
           :router="true"
           :default-active="activePath"
         >
+          <el-menu-item index="/dashboard" @click="saveNavState('/dashboard')">
+            <img :src="require(`../assets/dashboard.png`)" class="iconSize" />
+            <span slot="title">仪表盘</span>
+          </el-menu-item>
           <el-submenu :index="item.id+''" v-for="item in menulist" :key="item.id">
-            <template slot="title">
-              <img :src="require(`../assets/${item.icon}`)" class="iconSize" />
-              <span slot="title">{{item.description}}</span>
-            </template>
-            <el-menu-item
-              :index="subItem.url"
-              v-for="subItem in item.children"
-              :key="subItem.id"
-              @click="saveNavState(subItem.url)"
-            >
               <template slot="title">
-                <img :src="require(`../assets/${subItem.icon}`)" class="iconSize" />
-                <span>{{subItem.description}}</span>
+                <img :src="require(`../assets/${item.icon}`)" class="iconSize" />
+                <span slot="title">{{item.description}}</span>
               </template>
-            </el-menu-item>
+              <el-menu-item
+                :index="subItem.url"
+                v-for="subItem in item.children"
+                :key="subItem.id"
+                @click="saveNavState(subItem.url)"
+              >
+                <template slot="title">
+                  <img :src="require(`../assets/${subItem.icon}`)" class="iconSize" />
+                  <span>{{subItem.description}}</span>
+                </template>
+              </el-menu-item>
           </el-submenu>
         </el-menu>
       </el-aside>
@@ -69,6 +73,8 @@ export default {
     },
     async getMenuList() {
       this.menulist = JSON.parse(window.sessionStorage.getItem("data"));
+      console.log(this.menulist)
+      this.menulist.shift()
     },
     toggleCollapse() {
       this.isCollapse = !this.isCollapse;
