@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-const Login=()=>import(/* webpackChunkName: "login_home_welcome" */ '../components/login.vue')
-const Home=()=>import(/* webpackChunkName: "login_home_welcome" */ '../components/home.vue')
-const Welcome=()=>import(/* webpackChunkName: "login_home_welcome" */ '../components/welcome.vue')
+const Login=()=>import(/* webpackChunkName: "login_home_dashboard" */ '../components/login.vue')
+const Home=()=>import(/* webpackChunkName: "login_home_dashboard" */ '../components/home.vue')
+const Dashboard=()=>import(/* webpackChunkName: "login_home_dashboard" */ '../components/dashboard.vue')
 const Commodity=()=>import(/*webpackChunkName:"commodity_order_adminlog"*/ '../components/service/commodity.vue')
 const Order=()=>import(/*webpackChunkName:"commodity_order_adminlog"*/ '../components/service/order.vue')
 const AdminLog=()=>import(/*webpackChunkName:"commodity_order_adminlog"*/ '../components/log/adminLog.vue')
@@ -25,9 +25,9 @@ const routes = [
   {
     path: '/home',
     component: Home,
-    redirect: '/welcome',
+    redirect: '/dashboard',
     children:[
-      { path: '/welcome', component: Welcome },
+      { path: '/dashboard', component: Dashboard },
       { path: '/commodity', component: Commodity },
       { path: '/order', component: Order },
       { path: '/adminLog', component: AdminLog },
