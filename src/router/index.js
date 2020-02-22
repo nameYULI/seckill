@@ -10,6 +10,7 @@ const AdminLog=()=>import(/*webpackChunkName:"commodity_order_adminlog"*/ '../co
 const Admin=()=>import(/*webpackChunkName:"admin_order_systemConfig"*/ '../components/perm/admin.vue')
 const Role=()=>import(/*webpackChunkName:"admin_order_systemConfig"*/ '../components/perm/role.vue')
 const SystemConfig=()=>import(/*webpackChunkName:"admin_order_systemConfig"*/ '../components/system/systemConfig.vue')
+const dashboard=()=>import('../components/dashboard/dashboard.vue')
 
 Vue.use(VueRouter)
 
@@ -33,7 +34,8 @@ const routes = [
       { path: '/adminLog', component: AdminLog },
       { path: '/admin', component: Admin },
       { path: '/role', component: Role },
-      { path: '/systemConfig', component: SystemConfig }
+      { path: '/systemConfig', component: SystemConfig },
+      { path: '/dashboard', component: dashboard }
     ]
   }
 ]
