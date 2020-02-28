@@ -8,17 +8,140 @@
     </el-breadcrumb>
 
     <!-- 卡片视图区域 -->
-    <el-card>123</el-card>
+    <el-card>
+      <el-row>
+        <el-col :span="2">
+          <el-button size="medium" type="primary" @click="showAddDialog">添加</el-button>
+        </el-col>
+        <el-col :span="2">
+          <el-button size="medium" type="danger" @click="deleteAdmin">删除</el-button>
+        </el-col>
+      </el-row>
+
+      <el-table :data="adminList" stripe border style="width: 100%">
+        <el-table-column type="selection"></el-table-column>
+        <el-table-column prop="id" label="管理员id"></el-table-column>
+        <el-table-column prop="username" label="用户名"></el-table-column>
+        <el-table-column prop="realName" label="真实姓名"></el-table-column>
+        <el-table-column label="是否为超管">
+          <template slot-scope="scope">
+            <el-tag size="small" v-if="scope.row.isSuper===true">是</el-tag>
+            <el-tag size="small" type="success" v-else>否</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button type="success" size="mini" @click="editAdmin(scope.row.id)">编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 添加管理人员的对话框 -->
+      <el-dialog
+        title="添加人员"
+        :visible.sync="addAdminDialogVisible"
+        width="40%"
+        @close="addAdminDialogClosed"
+      >
+        <el-form
+          status-icon
+          :model="addAdminForm"
+          :rules="addAdminFormRules"
+          ref="addAdminFormRef"
+          label-width="100px"
+        >
+          <el-form-item label="用户名" prop="username">
+            <el-input v-model="addAdminForm.username"></el-input>
+          </el-form-item>
+          <el-form-item label="真实姓名" prop="realName">
+            <el-input v-model="addAdminForm.realName"></el-input>
+          </el-form-item>
+          <el-form-item label="角色">
+            <el-tree
+              :data="rolesList"
+              :props="rolesTreeProps"
+              show-checkbox
+              node-key="id"
+              default-expand-all
+              :default-checked-keys="defKeys"
+              ref="treeRef"
+            ></el-tree>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="addAdminDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addSure">确 定</el-button>
+        </span>
+      </el-dialog>
+    </el-card>
   </div>
 </template>
 
 <script>
 export default {
   data() {
-    return {};
+    return {
+      adminList: [],
+      addAdminDialogVisible: false,
+      addAdminForm: {
+        username: "",
+        realName: ""
+      },
+      addAdminFormRules: {},
+      rolesList: [],
+      //树形控件的属性绑定对象
+      rolesTreeProps: {
+        label: "",
+        children: "children"
+      },
+      //默认选中的节点id值数组
+      defKeys: []
+    };
   },
-  created() {},
-  methods: {}
+  created() {
+    this.getAdminList();
+  },
+  methods: {
+    async getAdminList() {
+      const { data: res } = await this.$http.post("/api/administrator/list");
+      if (res.code !== "200") {
+        return this.$message.error("获取人员列表失败");
+      }
+      this.adminList = res.data;
+    },
+    showAddDialog() {
+      this.addAdminDialogVisible = true;
+    },
+    addAdminDialogClosed() {
+      this.$refs.addAdminFormRef.resetFields();
+    },
+    addSure() {},
+    async deleteAdmin() {
+      const confirmResult = await this.$confirm(
+        "此操作将永久删除所选人员，是否继续?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      ).catch(err => err);
+      if (confirmResult !== "confirm") {
+        return this.$message.info("已取消删除");
+      }
+      const { data: res } = await this.$http.post(
+        "/api/administrator/delete",
+        qs.stringify({ ids: this.ids }),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+      if (res.code !== "200") {
+        return this.$message.error("删除人员失败");
+      }
+      this.$message.success("删除成功!");
+      this.getAdminList();
+    },
+    editAdmin() {}
+  }
 };
 </script>
 
