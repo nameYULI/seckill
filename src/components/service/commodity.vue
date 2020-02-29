@@ -248,7 +248,7 @@
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="setAsSecDialogVisible = false">取 消</el-button>
+          <el-button @click="editSecDialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="editSecSure">确 定</el-button>
         </span>
       </el-dialog>
@@ -433,6 +433,7 @@ export default {
           "/api/commodity/update",
           this.editForm
         );
+        console.log(res)
         if (res.code !== "200") {
           return this.$message.error("修改商品信息失败！");
         }
@@ -551,9 +552,11 @@ export default {
         );
         if (res.code !== "200") {
           this.$message.error("修改秒杀商品失败！");
+        }else{
+          this.editSecDialogVisible = false;
+          await this.getCommodityList();
+          this.$message.success("修改成功！");
         }
-        this.$message.success("修改成功！");
-        this.getCommodityList();
       });
     }
   }
