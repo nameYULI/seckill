@@ -18,7 +18,13 @@
         </el-col>
       </el-row>
 
-      <el-table :data="roleList" stripe border style="width: 100%">
+      <el-table
+        :data="roleList"
+        @selection-change="handleSelectionChange"
+        stripe
+        border
+        style="width: 100%"
+      >
         <el-table-column type="selection"></el-table-column>
         <el-table-column prop="id" label="角色id"></el-table-column>
         <el-table-column prop="roleName" label="角色名称"></el-table-column>
@@ -72,6 +78,7 @@
 </template>
 
 <script>
+import qs from "qs";
 export default {
   data() {
     return {
@@ -90,7 +97,9 @@ export default {
         children: "children"
       },
       //默认选中的节点id值数组
-      defKeys: []
+      defKeys: [],
+      multipleSelection: [],
+      ids: ""
     };
   },
   created() {
@@ -111,6 +120,16 @@ export default {
       this.$refs.addRoleFormRef.resetFields();
     },
     addSure() {},
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+      this.ids = "";
+      this.multipleSelection.forEach(data => {
+        this.ids += data.id + ",";
+      });
+      if (this.ids.length > 0) {
+        this.ids = this.ids.substr(0, this.ids.length - 1);
+      }
+    },
     async deleteRole() {
       const confirmResult = await this.$confirm(
         "此操作将永久删除所选角色，是否继续?",

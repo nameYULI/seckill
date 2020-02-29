@@ -18,7 +18,13 @@
         </el-col>
       </el-row>
 
-      <el-table :data="adminList" stripe border style="width: 100%">
+      <el-table
+        :data="adminList"
+        @selection-change="handleSelectionChange"
+        stripe
+        border
+        style="width: 100%"
+      >
         <el-table-column type="selection"></el-table-column>
         <el-table-column prop="id" label="管理员id"></el-table-column>
         <el-table-column prop="username" label="用户名"></el-table-column>
@@ -63,7 +69,6 @@
               show-checkbox
               node-key="id"
               default-expand-all
-              :default-checked-keys="defKeys"
               ref="treeRef"
             ></el-tree>
           </el-form-item>
@@ -78,6 +83,7 @@
 </template>
 
 <script>
+import qs from "qs";
 export default {
   data() {
     return {
@@ -88,14 +94,31 @@ export default {
         realName: ""
       },
       addAdminFormRules: {},
-      rolesList: [],
+
       //树形控件的属性绑定对象
       rolesTreeProps: {
         label: "",
         children: "children"
       },
-      //默认选中的节点id值数组
-      defKeys: []
+      rolesList: [],
+      multipleSelection: [],
+      ids: "",
+      addAdminFormRules: {
+        username: [
+          {
+            required: true,
+            message: "请输入用户名",
+            trigger: "blur"
+          }
+        ],
+        realName: [
+          {
+            required: true,
+            message: "请输入真实姓名",
+            trigger: "blur"
+          }
+        ]
+      }
     };
   },
   created() {
@@ -109,13 +132,25 @@ export default {
       }
       this.adminList = res.data;
     },
-    showAddDialog() {
+    async showAddDialog() {
+      const { data: res } = await this.$http.post("/api/perms/findAll");
+      this.rolesList = res.data;
       this.addAdminDialogVisible = true;
     },
     addAdminDialogClosed() {
       this.$refs.addAdminFormRef.resetFields();
     },
     addSure() {},
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+      this.ids = "";
+      this.multipleSelection.forEach(data => {
+        this.ids += data.id + ",";
+      });
+      if (this.ids.length > 0) {
+        this.ids = this.ids.substr(0, this.ids.length - 1);
+      }
+    },
     async deleteAdmin() {
       const confirmResult = await this.$confirm(
         "此操作将永久删除所选人员，是否继续?",

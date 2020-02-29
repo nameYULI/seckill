@@ -52,9 +52,9 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="queryInfo.pageNo"
-        :page-sizes="[5, 10, 20, 30]"
+        :page-sizes="[5, 10, 15, 20]"
         :page-size="queryInfo.pageSize"
-        layout="sizes, prev, pager, next, jumper"
+        layout="total,sizes, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
     </el-card>
@@ -86,9 +86,10 @@ export default {
       this.queryInfo.startTime = this.dateValue[0];
       this.queryInfo.endTime = this.dateValue[1];
 
-      const { data: res } = await this.$http.post("/api/log/list", {
-        params: this.queryInfo
-      });
+      const { data: res } = await this.$http.post(
+        "/api/log/list",
+        this.queryInfo
+      );
       if (res.code !== "200") {
         return this.$message.error("获取日志列表失败");
       }
