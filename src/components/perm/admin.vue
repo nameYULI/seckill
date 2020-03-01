@@ -65,10 +65,11 @@
           <el-form-item label="角色">
             <el-tree
               :data="rolesList"
-              :props="rolesTreeProps"
               show-checkbox
               node-key="id"
-              default-expand-all
+              :default-checked-keys="[1]"
+              :default-expand-all = false
+              :props="rolesTreeProps"
               ref="treeRef"
             ></el-tree>
           </el-form-item>
@@ -97,10 +98,64 @@ export default {
 
       //树形控件的属性绑定对象
       rolesTreeProps: {
-        label: "",
+        label: "label",
         children: "children"
       },
-      rolesList: [],
+      rolesList: [
+        {
+          id: 1,
+          label: "仪表盘",
+          children: [
+          ]
+        },{
+          id: 2,
+          label: "业务模块",
+          children: [
+            {
+              id: 3,
+              label: "商品管理"
+            },
+            {
+              id: 4,
+              label: "订单管理"
+            }
+          ]
+        },
+        {
+          id: 5,
+          label: "日志模块",
+          children: [
+            {
+              id: 6,
+              label: "管理员监控日志"
+            }
+          ]
+        },
+        {
+          id: 7,
+          label: "权限模块",
+          children: [
+            {
+              id: 8,
+              label: "人员管理"
+            },
+             {
+              id: 9,
+              label: "角色管理"
+            }
+          ]
+        },
+        {
+          id: 10,
+          label: "系统管理模块",
+          children: [
+            {
+              id: 11,
+              label: "系统配置"
+            }
+          ]
+        }
+      ],
       multipleSelection: [],
       ids: "",
       addAdminFormRules: {
@@ -134,13 +189,16 @@ export default {
     },
     async showAddDialog() {
       const { data: res } = await this.$http.post("/api/perms/findAll");
-      this.rolesList = res.data;
+      // this.rolesList = res.data;
       this.addAdminDialogVisible = true;
     },
     addAdminDialogClosed() {
       this.$refs.addAdminFormRef.resetFields();
     },
-    addSure() {},
+    addSure() {
+      var roldIds = this.$refs.treeRef.getCheckedKeys()
+      console.log(roldIds)
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val;
       this.ids = "";
