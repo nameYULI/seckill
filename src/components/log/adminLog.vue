@@ -25,11 +25,13 @@
         </el-col>
         <el-col :span="9" style="width:365px;">
           <el-date-picker
+            value-format="yyyy-MM-dd HH:mm:ss"
             v-model="dateValue"
             type="daterange"
             range-separator="至"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            @change="dateChange"
           ></el-date-picker>
           <!-- <template slot="prepend">时间范围</template> -->
         </el-col>
@@ -93,7 +95,14 @@ export default {
       if (res.code !== "200") {
         return this.$message.error("获取日志列表失败");
       }
-      this.adminLogList = res.data;
+      this.total = res.data.total;
+      this.adminLogList = res.data.list;
+    },
+    dateChange(value) {
+      if (value == null) {
+        this.dateValue = "";
+        this.getAdminLogList();
+      }
     },
     handleSizeChange(val) {
       this.queryInfo.pageSize = val;

@@ -31,14 +31,14 @@
         <el-table-column prop="description" label="角色描述"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="success" size="mini" @click="editRole(scope.row.id)">编辑</el-button>
+            <el-button type="success" size="mini" @click="editRole(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <!-- 添加角色的对话框 -->
       <el-dialog
-        title="添加人员"
+        title="添加角色"
         :visible.sync="addRoleDialogVisible"
         width="40%"
         @close="addRoleDialogClosed"
@@ -47,13 +47,13 @@
           status-icon
           :model="addRoleForm"
           :rules="addRoleFormRules"
-          ref="addAdminFormRef"
+          ref="addRoleFormRef"
           label-width="100px"
         >
           <el-form-item label="角色名称" prop="roleName">
             <el-input v-model="addRoleForm.roleName"></el-input>
           </el-form-item>
-          <el-form-item label="角色描述" prop="description">
+          <el-form-item label="角色描述">
             <el-input v-model="addRoleForm.description"></el-input>
           </el-form-item>
           <el-form-item label="拥有权限">
@@ -63,14 +63,51 @@
               show-checkbox
               node-key="id"
               default-expand-all
-              :default-checked-keys="defKeys"
               ref="treeRef"
             ></el-tree>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="addAdminDialogVisible = false">取 消</el-button>
+          <el-button @click="addRoleDialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="addSure">确 定</el-button>
+        </span>
+      </el-dialog>
+
+      <!-- 编辑角色的对话框 -->
+      <el-dialog
+        title="编辑角色"
+        :visible.sync="editRoleDialogVisible"
+        width="40%"
+        @close="editRoleDialogClosed"
+      >
+        <el-form
+          status-icon
+          :model="editRoleForm"
+          :rules="addRoleFormRules"
+          ref="editRoleFormRef"
+          label-width="100px"
+        >
+          <el-form-item label="角色名称" prop="roleName">
+            <el-input v-model="editRoleForm.roleName"></el-input>
+          </el-form-item>
+          <el-form-item label="角色描述">
+            <el-input v-model="editRoleForm.description"></el-input>
+          </el-form-item>
+          <el-form-item label="拥有权限">
+            <el-tree
+              :data="rolesList"
+              :props="rolesTreeProps"
+              show-checkbox
+              node-key="id"
+              default-expand-all
+              :default-checked-keys="ownRolesList"
+              ref="treeRef"
+            ></el-tree>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editRoleDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="editSure">确 定</el-button>
         </span>
       </el-dialog>
     </el-card>
@@ -87,17 +124,32 @@ export default {
       addRoleDialogVisible: false,
       addRoleForm: {
         roleName: "",
-        description: ""
+        description: "",
+        permIds: "",
+        type: 0
       },
-      addRoleFormRules: {},
+      addRoleFormRules: {
+        roleName: [
+          {
+            required: true,
+            message: "请输入角色名称",
+            trigger: "blur"
+          }
+        ]
+      },
+      editRoleForm: {
+        roleName: "",
+        description: "",
+        permIds: ""
+      },
+      editRoleDialogVisible: false,
+      ownRolesList: [],
       rolesList: [],
       //树形控件的属性绑定对象
       rolesTreeProps: {
-        label: "",
+        label: "description",
         children: "children"
       },
-      //默认选中的节点id值数组
-      defKeys: [],
       multipleSelection: [],
       ids: ""
     };
@@ -113,13 +165,30 @@ export default {
       }
       this.roleList = res.data;
     },
-    showAddDialog() {
+    async showAddDialog() {
+      const { data: res } = await this.$http.post("/api/perms/findAll");
+      this.rolesList = res.data;
       this.addRoleDialogVisible = true;
     },
     addRoleDialogClosed() {
       this.$refs.addRoleFormRef.resetFields();
     },
-    addSure() {},
+    addSure() {
+      this.addRoleForm.permIds = this.$refs.treeRef.getCheckedKeys().toString();
+      this.$refs.addRoleFormRef.validate(async valid => {
+        if (!valid) return;
+        const { data: res } = await this.$http.post(
+          "/api/role/add",
+          this.addRoleForm
+        );
+        if (res.code !== "200") {
+          return this.$message.error("添加角色失败！");
+        }
+        this.$message.success("添加成功！");
+        this.addRoleDialogVisible = false;
+        this.getRoleList();
+      });
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val;
       this.ids = "";
@@ -152,9 +221,52 @@ export default {
         return this.$message.error("删除角色失败");
       }
       this.$message.success("删除成功!");
-      this.getAdminList();
+      this.getRoleList();
     },
-    editRole() {}
+    async editRole(row) {
+      const { data: res1 } = await this.$http.post("/api/perms/findAll");
+      this.rolesList = res1.data;
+      var ids = [];
+      const { data: res } = await this.$http.post(
+        "/api/perms/findPerms",
+        qs.stringify({ userId: row.id }),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+      res.data.forEach(function(value, index) {
+        if (value.children.length == 0) {
+          ids.push(value.id);
+        }
+        value.children.forEach(function(val, index) {
+          ids.push(val.id);
+        });
+      });
+      this.ownRolesList = ids;
+      console.log(this.ownRolesList);
+      this.editRoleForm.roleName = row.roleName;
+      this.editRoleForm.description = row.description;
+      this.editRoleDialogVisible = true;
+    },
+    editRoleDialogClosed() {
+      this.$refs.editRoleFormRef.resetFields();
+    },
+    editSure() {
+      this.editRoleForm.permIds = this.$refs.treeRef
+        .getCheckedKeys()
+        .toString();
+      this.$refs.editRoleFormRef.validate(async valid => {
+        if (!valid) return;
+        const { data: res } = await this.$http.post(
+          "/api/role/update",
+          this.editRoleForm
+        );
+        if (res.code !== "200") {
+          return this.$message.error("修改角色失败！");
+        }
+        this.$message.success("修改成功！");
+        this.editRoleDialogVisible = false;
+        this.getRoleList();
+      });
+    }
   }
 };
 </script>

@@ -66,7 +66,8 @@ export default {
       if (res.code !== "200") {
         return this.$message.error("获取订单列表失败");
       }
-      this.orderList = res.data;
+      this.total = res.data.total;
+      this.orderList = res.data.list;
     },
     handleSizeChange(val) {
       this.queryInfo.pageSize = val;

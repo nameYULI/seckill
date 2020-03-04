@@ -37,7 +37,7 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="success" size="mini" @click="editAdmin(scope.row.id)">编辑</el-button>
+            <el-button type="success" size="mini" @click="editAdmin(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -46,7 +46,7 @@
       <el-dialog
         title="添加人员"
         :visible.sync="addAdminDialogVisible"
-        width="40%"
+        width="512px"
         @close="addAdminDialogClosed"
       >
         <el-form
@@ -63,20 +63,56 @@
             <el-input v-model="addAdminForm.realName"></el-input>
           </el-form-item>
           <el-form-item label="角色">
-            <el-tree
-              :data="rolesList"
-              show-checkbox
-              node-key="id"
-              :default-checked-keys="[1]"
-              :default-expand-all = false
-              :props="rolesTreeProps"
-              ref="treeRef"
-            ></el-tree>
+            <el-select v-model="addAdminForm.roleIds" multiple placeholder="请选择">
+              <el-option
+                v-for="item in rolesList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="addAdminDialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="addSure">确 定</el-button>
+        </span>
+      </el-dialog>
+
+      <!-- 编辑管理人员的对话框 -->
+      <el-dialog
+        title="编辑人员"
+        :visible.sync="editAdminDialogVisible"
+        width="512px"
+        @close="editAdminDialogClosed"
+      >
+        <el-form
+          status-icon
+          :model="editAdminForm"
+          :rules="addAdminFormRules"
+          ref="editAdminFormRef"
+          label-width="100px"
+        >
+          <el-form-item label="用户名" prop="username">
+            <el-input v-model="editAdminForm.username"></el-input>
+          </el-form-item>
+          <el-form-item label="真实姓名" prop="realName">
+            <el-input v-model="editAdminForm.realName"></el-input>
+          </el-form-item>
+          <el-form-item label="角色">
+            <el-select v-model="ownRolesList" multiple placeholder="请选择">
+              <el-option
+                v-for="item in rolesList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editAdminDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="editSure">确 定</el-button>
         </span>
       </el-dialog>
     </el-card>
@@ -92,70 +128,21 @@ export default {
       addAdminDialogVisible: false,
       addAdminForm: {
         username: "",
-        realName: ""
+        realName: "",
+        roleIds: []
       },
-      addAdminFormRules: {},
 
-      //树形控件的属性绑定对象
-      rolesTreeProps: {
-        label: "label",
-        children: "children"
+      editAdminDialogVisible: false,
+      editAdminForm: {
+        id: 0,
+        isSuper: false,
+        realName: "",
+        roleIds: "",
+        username: ""
       },
-      rolesList: [
-        {
-          id: 1,
-          label: "仪表盘",
-          children: [
-          ]
-        },{
-          id: 2,
-          label: "业务模块",
-          children: [
-            {
-              id: 3,
-              label: "商品管理"
-            },
-            {
-              id: 4,
-              label: "订单管理"
-            }
-          ]
-        },
-        {
-          id: 5,
-          label: "日志模块",
-          children: [
-            {
-              id: 6,
-              label: "管理员监控日志"
-            }
-          ]
-        },
-        {
-          id: 7,
-          label: "权限模块",
-          children: [
-            {
-              id: 8,
-              label: "人员管理"
-            },
-             {
-              id: 9,
-              label: "角色管理"
-            }
-          ]
-        },
-        {
-          id: 10,
-          label: "系统管理模块",
-          children: [
-            {
-              id: 11,
-              label: "系统配置"
-            }
-          ]
-        }
-      ],
+      ownRolesList: [],
+
+      rolesList: [],
       multipleSelection: [],
       ids: "",
       addAdminFormRules: {
@@ -187,17 +174,42 @@ export default {
       }
       this.adminList = res.data;
     },
-    async showAddDialog() {
-      const { data: res } = await this.$http.post("/api/perms/findAll");
-      // this.rolesList = res.data;
+    async getRoles() {
+      const { data: res } = await this.$http.post("/api/role/list");
+      const data1 = [];
+      res.data.forEach(function(value, index) {
+        data1.push({
+          value: value.id,
+          label: value.roleName
+        });
+      });
+      this.rolesList = data1;
+    },
+    showAddDialog() {
+      this.getRoles();
       this.addAdminDialogVisible = true;
     },
     addAdminDialogClosed() {
       this.$refs.addAdminFormRef.resetFields();
     },
     addSure() {
-      var roldIds = this.$refs.treeRef.getCheckedKeys()
-      console.log(roldIds)
+      this.addAdminForm.roleIds = this.addAdminForm.roleIds.toString();
+      this.$refs.addAdminFormRef.validate(async valid => {
+        if (!valid) return;
+        const { data: res } = await this.$http.post(
+          "/api/administrator/add",
+          this.addAdminForm
+        );
+        if (res.code !== "200") {
+          return this.$message.error("添加管理员失败！");
+        }
+        this.$message.success("添加成功！");
+        this.addAdminDialogVisible = false;
+        this.getAdminList();
+      });
+    },
+    editAdminDialogClosed() {
+      this.$refs.editAdminFormRef.resetFields();
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -233,10 +245,46 @@ export default {
       this.$message.success("删除成功!");
       this.getAdminList();
     },
-    editAdmin() {}
+    async editAdmin(row) {
+      this.getRoles();
+      var ids = [];
+      const { data: res } = await this.$http.post(
+        "/api/role/findByAdminId",
+        qs.stringify({ id: row.id }),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+      res.data.forEach(function(value, index) {
+        ids.push(value.id);
+      });
+      console.log(ids);
+      this.ownRolesList = ids;
+      this.editAdminForm = row;
+      this.editAdminDialogVisible = true;
+    },
+    editSure() {
+      this.ownRolesList = this.ownRolesList.toString();
+      this.editAdminForm.roleIds = this.ownRolesList;
+      this.$refs.editAdminFormRef.validate(async valid => {
+        if (!valid) return;
+        const { data: res } = await this.$http.post(
+          "/api/administrator/update",
+          this.editAdminForm
+        );
+        if (res.code !== "200") {
+          return this.$message.error("修改管理员失败！");
+        }
+        this.$message.success("修改成功！");
+        this.editAdminDialogVisible = false;
+        this.getAdminList();
+      });
+    }
   }
 };
 </script>
 
 <style lang="less" scoped>
+.el-select {
+  display: block;
+  width: 372px !important;
+}
 </style>

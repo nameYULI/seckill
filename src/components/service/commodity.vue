@@ -196,10 +196,20 @@
             <el-input v-model="setAsSecForm.sk_stock"></el-input>
           </el-form-item>
           <el-form-item label="秒杀开始时间" prop="startTime">
-            <el-date-picker v-model="setAsSecForm.startTime" type="datetime" placeholder="选择秒杀开始时间"></el-date-picker>
+            <el-date-picker
+              value-format=" yyyy-MM-dd HH:mm:ss"
+              v-model="setAsSecForm.startTime"
+              type="datetime"
+              placeholder="选择秒杀开始时间"
+            ></el-date-picker>
           </el-form-item>
           <el-form-item label="秒杀结束时间" prop="endTime">
-            <el-date-picker v-model="setAsSecForm.endTime" type="datetime" placeholder="选择秒杀结束时间"></el-date-picker>
+            <el-date-picker
+              value-format=" yyyy-MM-dd HH:mm:ss"
+              v-model="setAsSecForm.endTime"
+              type="datetime"
+              placeholder="选择秒杀结束时间"
+            ></el-date-picker>
           </el-form-item>
           <el-form-item label="秒杀商品描述" prop="description">
             <el-input v-model="setAsSecForm.description"></el-input>
@@ -395,8 +405,8 @@ export default {
       if (res.code !== "200") {
         return this.$message.error("获取商品列表失败！");
       }
-      this.total = 6;
-      this.commodityList = res.data;
+      this.total = res.data.total;
+      this.commodityList = res.data.list;
     },
     showAddDialog() {
       this.addCommodityDialogVisible = true;
@@ -433,7 +443,7 @@ export default {
           "/api/commodity/update",
           this.editForm
         );
-        console.log(res)
+        console.log(res);
         if (res.code !== "200") {
           return this.$message.error("修改商品信息失败！");
         }
@@ -502,6 +512,7 @@ export default {
         }
         this.$message.success("设置成功！");
         this.getCommodityList();
+        this.setAsSecDialogVisible = false;
       });
     },
     async underCarriage(id) {
@@ -519,14 +530,14 @@ export default {
       }
       const { data: res } = await this.$http.post(
         "/api/commodity/deleteSK",
-        qs.stringify({ id: id }),
+        qs.stringify({ cId: id }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
       if (res.code !== "200") {
         return this.$message.error("下架秒杀商品失败");
       }
       this.$message.success("下架成功!");
-      this.getCommodityList();
+      await this.getCommodityList();
     },
     async modifyCommodity(id) {
       const { data: res } = await this.$http.post(
@@ -552,7 +563,7 @@ export default {
         );
         if (res.code !== "200") {
           this.$message.error("修改秒杀商品失败！");
-        }else{
+        } else {
           this.editSecDialogVisible = false;
           await this.getCommodityList();
           this.$message.success("修改成功！");
