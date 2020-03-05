@@ -325,13 +325,13 @@ export default {
       setAsSecDialogVisible: false,
       setAsSecForm: {
         name: "",
+        c_id: 0,
         c_price: "",
         sk_price: "",
         sk_stock: "",
         startTime: "",
         endTime: "",
         description: "",
-        id: "",
         image: ""
       },
       setAsSecFormRules: {
@@ -488,7 +488,7 @@ export default {
       this.getCommodityList();
     },
     async setAsSec(row) {
-      this.setAsSecForm.id = row.id;
+      this.setAsSecForm.c_id = row.id;
       this.setAsSecForm.image = row.image;
       this.setAsSecDialogVisible = true;
     },
@@ -496,10 +496,6 @@ export default {
       this.$refs.setAsSecFormRef.resetFields();
     },
     setSure() {
-      // this.setAsSecForm.startTime =
-      //   this.setAsSecForm.startTime + 3600 * 1000 * 8 + 1;
-      // this.setAsSecForm.endTime =
-      //   this.setAsSecForm.endTime + 3600 * 1000 * 8 + 1;
       this.$refs.setAsSecFormRef.validate(async valid => {
         if (!valid) return;
         const { data: res } = await this.$http.post(
@@ -507,7 +503,7 @@ export default {
           this.setAsSecForm
         );
         if (res.code !== "200") {
-          this.$message.error("设置秒杀商品失败！");
+          return this.$message.error("设置秒杀商品失败！");
         }
         this.$message.success("设置成功！");
         this.getCommodityList();
