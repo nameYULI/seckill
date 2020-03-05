@@ -2,7 +2,6 @@
   <div>
     <!-- 面包屑导航区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>权限模块</el-breadcrumb-item>
       <el-breadcrumb-item>人员管理</el-breadcrumb-item>
     </el-breadcrumb>

@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 
 const Login=()=>import(/* webpackChunkName: "login_home_dashboard" */ '../components/login.vue')
 const Home=()=>import(/* webpackChunkName: "login_home_dashboard" */ '../components/home.vue')
-const Dashboard=()=>import(/* webpackChunkName: "login_home_dashboard" */ '../components/dashboard.vue')
+const Dashboard=()=>import(/* webpackChunkName: "login_home_dashboard" */ '../components/dashboard/dashboard.vue')
 const Commodity=()=>import(/*webpackChunkName:"commodity_order_adminlog"*/ '../components/service/commodity.vue')
 const Order=()=>import(/*webpackChunkName:"commodity_order_adminlog"*/ '../components/service/order.vue')
 const AdminLog=()=>import(/*webpackChunkName:"commodity_order_adminlog"*/ '../components/log/adminLog.vue')

@@ -45,10 +45,18 @@
           :router="true"
           :default-active="activePath"
         >
-          <el-menu-item v-if="hasDashboard" index="/dashboard" @click="saveNavState('/dashboard')">
-            <img :src="require(`../assets/dashboard.png`)" class="iconSize" />
-            <span slot="title">仪表盘</span>
+          <el-menu-item
+            :index="item.url"
+            v-for="item in noChildrenList"
+            :key="item.id"
+            @click="saveNavState(item.url)"
+          >
+            <template slot="title">
+              <img :src="require(`../assets/${item.icon}`)" class="iconSize" />
+              <span>{{item.description}}</span>
+            </template>
           </el-menu-item>
+
           <el-submenu :index="item.id+''" v-for="item in menulist" :key="item.id">
             <template slot="title">
               <img :src="require(`../assets/${item.icon}`)" class="iconSize" />
@@ -80,7 +88,7 @@
 export default {
   data() {
     return {
-      hasDashboard: false,
+      noChildrenList: [],
       fullscreen: false,
       username: "",
       menulist: [],
@@ -131,11 +139,17 @@ export default {
 
     getMenuList() {
       this.menulist = JSON.parse(window.sessionStorage.getItem("data"));
-      // console.log(this.menulist);
-      if (this.menulist[0].children.length == 0) {
-        this.menulist.shift();
-        this.hasDashboard = true;
-      }
+
+      const data = [];
+      const menuData = this.menulist;
+      this.menulist.forEach(function(value, index) {
+        if (value.children.length == 0) {
+          data.push(value);
+          menuData.splice(index, 1);
+        }
+      });
+      this.noChildrenList = data;
+      this.menulist = menuData;
     },
     toggleCollapse() {
       this.isCollapse = !this.isCollapse;

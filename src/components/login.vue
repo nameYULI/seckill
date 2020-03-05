@@ -54,6 +54,7 @@ export default {
         this.$message.success("登录成功");
         window.sessionStorage.setItem("data", JSON.stringify(res.data.perms));
         window.sessionStorage.setItem("username", this.loginForm.username);
+        window.sessionStorage.setItem("activePath", "/dashboard");
 
         this.$router.push("/home");
       });

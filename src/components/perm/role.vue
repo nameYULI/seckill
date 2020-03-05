@@ -2,7 +2,6 @@
   <div>
     <!-- 面包屑导航区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>权限模块</el-breadcrumb-item>
       <el-breadcrumb-item>角色管理</el-breadcrumb-item>
     </el-breadcrumb>
@@ -230,8 +229,8 @@ export default {
       this.rolesList = res1.data;
       var ids = [];
       const { data: res } = await this.$http.post(
-        "/api/perms/findPerms",
-        qs.stringify({ userId: row.id }),
+        "/api/perms/findByRoleId",
+        qs.stringify({ roleId: row.id }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
       res.data.forEach(function(value, index) {
