@@ -42,20 +42,18 @@ export default {
   },
   methods: {
     loginClick() {
-      // this.$refs.loginFormRef.resetFields()  //表单重置
-
       //表单登录前的预验证
       this.$refs.loginFormRef.validate(async valid => {
         if (!valid) return;
         const { data: res } = await this.$http.get("login", {
           params: this.loginForm
         });
-
-        // if (res.code !== "200") {
-        //   return this.$message.error("用户名或密码错误");
-        // }
+        if (res.code !== "200") {
+          return this.$message.error("用户名或密码错误");
+        }
         this.$message.success("登录成功");
         window.sessionStorage.setItem("data", JSON.stringify(res.data.perms));
+        window.sessionStorage.setItem("username", this.loginForm.username);
 
         this.$router.push("/home");
       });

@@ -138,9 +138,11 @@ export default {
         ]
       },
       editRoleForm: {
+        id: 0,
         roleName: "",
         description: "",
-        permIds: ""
+        permIds: "",
+        type: 0
       },
       editRoleDialogVisible: false,
       ownRolesList: [],
@@ -244,6 +246,7 @@ export default {
       console.log(this.ownRolesList);
       this.editRoleForm.roleName = row.roleName;
       this.editRoleForm.description = row.description;
+      this.editRoleForm.id = row.id;
       this.editRoleDialogVisible = true;
     },
     editRoleDialogClosed() {

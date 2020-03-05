@@ -42,7 +42,10 @@ import {
   Timeline,
   TimelineItem,
   DatePicker,
-  Transfer
+  Transfer,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu
 } from 'element-ui'
 
 Vue.use(Button)
@@ -86,5 +89,8 @@ Vue.use(Timeline)
 Vue.use(TimelineItem)
 Vue.use(DatePicker)
 Vue.use(Transfer)
+Vue.use(Dropdown)
+Vue.use(DropdownItem)
+Vue.use(DropdownMenu)
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
